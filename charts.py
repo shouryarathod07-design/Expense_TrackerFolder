@@ -166,7 +166,7 @@ def Monthly_spending_Category_pie(Expenses, year: int, month: int, threshold_per
 
     plt.title(f"Category Distribution — {datetime(year, month, 1).strftime('%B %Y')}", y=1.10)
     plt.axis("equal")
-    plt.legend(merged_labels, title="Categories", loc="best", bbox_to_anchor=(-0.1, 0.3))
+    plt.legend(merged_labels, title="Categories", loc="center left", bbox_to_anchor=(-0.1, 0))
 
 
     #  Save to file
