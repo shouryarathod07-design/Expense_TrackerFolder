@@ -9,7 +9,7 @@ from decimal import Decimal
 from charts import monthly_spending_chart, Monthly_spending_Category_pie
 from models import Expense
 from storage import load_expense,save_expense,save_budget
-from reports import monthly_summary,monthly_summaryByCat, annual_summary, weekly_summary , average_daily_spending_by_month, monthly_summary_Compare_Budget
+from reports import monthly_summary,monthly_summaryByCat, annual_summary, weekly_summary , average_daily_spending_by_month, monthly_summary_Compare_Budget, Quick_indicator, Quick_Top_Category, Quick_month_over_month_change,Quick_DailyBurn_rate
 from filters import search_Filter
 from export import  csv_to_export
 
@@ -54,7 +54,8 @@ def main():
         print("\n 10. Export To CSV")
         print("\n 11. Set/Edit Monthly Budget")
         print("\n 12. Charts & Graphs")
-        print("\n 13. Exit")
+        print("\n 13. Text Report insights (Quick Glance) ")
+        print("\n 14. Exit")
 
 
         # user selection
@@ -344,9 +345,65 @@ def main():
 
             
             
-        
-        
         elif user_category_choice=="13":
+           
+            with open("data/budget.json") as f:
+                value = json.load(f)
+                monthly_budget = value["monthly_budget"]
+
+
+            print("\n Quick Glance Reports: ")
+            print("\n 1. Month overview ")
+            print("\n 2. Top Spending Category for a month")
+            print("\n 3. Month Over Month Change")
+            print("\n 4. Average Daily Spend (Burn Rate)")
+
+            
+            user_quickGlance_choice = int(input("Choose a report you wish to view (1-4): ").strip())
+            
+            if user_quickGlance_choice ==1:
+                
+                
+                year_forReport = int(input("Type the year for the report (ex: 2025): "))
+                month_forReport = int(input("Type the month for the report (ex: 2 [for feb]): "))
+                
+                Quick_indicator(Expenses,year_forReport,month_forReport,monthly_budget)
+            
+
+            elif user_quickGlance_choice ==2:
+                year_forReport2 = int(input("Type the year for the report (ex: 2025): "))
+                month_forReport2 = int(input("Type the month for the report (ex: 2 [for feb]): "))
+
+                Quick_Top_Category(Expenses,year_forReport2,month_forReport2)
+            
+            
+            elif user_quickGlance_choice ==3:
+                year_forReport3 = int(input("Type the year for the report (ex: 2025): "))
+                month_forReport3 = int(input("Type the month for the report (ex: 2 [for feb]): "))
+
+                Quick_month_over_month_change(Expenses,year_forReport3,month_forReport3)
+            
+
+            elif user_quickGlance_choice ==4:
+                year_forReport4 = int(input("Type the year for the report (ex: 2025): "))
+                month_forReport4 = int(input("Type the month for the report (ex: 2 [for feb]): "))
+
+                Quick_DailyBurn_rate(Expenses,year_forReport4,month_forReport4)
+
+
+
+
+            else:
+                print("Invalid choice")
+                return
+
+
+
+
+        
+        
+        
+        elif user_category_choice=="14":
                 
                 # save the expenses before exit:
             save_expense(Expenses)
@@ -399,7 +456,7 @@ if __name__ =="__main__":
 
 
 
-
+# Move on to refactoring--> IN PROGRESS
 
 
 
