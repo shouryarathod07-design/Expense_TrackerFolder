@@ -183,7 +183,6 @@ def Monthly_spending_Category_pie(Expenses, year: int, month: int, threshold_per
 
 
 
-
 ###
 ### 
    # sizes: Total expenses in a year per category/total expenses in a year

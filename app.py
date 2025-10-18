@@ -357,6 +357,7 @@ def main():
             print("\n 2. Top Spending Category for a month")
             print("\n 3. Month Over Month Change")
             print("\n 4. Average Daily Spend (Burn Rate)")
+            print("\n 5. Export all the above in a .txt file")
 
             
             user_quickGlance_choice = int(input("Choose a report you wish to view (1-4): ").strip())
@@ -389,6 +390,29 @@ def main():
                 month_forReport4 = int(input("Type the month for the report (ex: 2 [for feb]): "))
 
                 Quick_DailyBurn_rate(Expenses,year_forReport4,month_forReport4)
+
+            elif user_quickGlance_choice ==5:
+                year_forReport5 = int(input("Type the year for the report (ex:2025): "))
+                month_forReport5 = int(input("Type the month number for the report: "))
+
+                Quick_indicator(Expenses,year_forReport5,month_forReport5,monthly_budget)
+
+                Quick_Top_Category(Expenses,year_forReport5,month_forReport5)
+
+                Quick_month_over_month_change(Expenses,year_forReport5,month_forReport5)
+
+                Quick_DailyBurn_rate(Expenses,year_forReport5,month_forReport5)
+
+                all_text_output = Quick_indicator(Expenses,year_forReport5,month_forReport5,monthly_budget) + Quick_Top_Category(Expenses,year_forReport5,month_forReport5) + Quick_month_over_month_change(Expenses,year_forReport5,month_forReport5) + Quick_DailyBurn_rate(Expenses,year_forReport5,month_forReport5)
+
+                with open("data/Quick_Glance_Report.txt", "w",encoding="utf-8") as f:
+                    f.write(all_text_output)
+                
+                print("Output written to Quick_Glance_Report.txt")
+
+
+
+
 
 
 
@@ -451,12 +475,16 @@ if __name__ =="__main__":
 # 7_ Backup/polish --> IN PROGRESS
 # 8) **** CSV EXPORT**** --> DONE
 # 8) Whole Frontend GUI 
-#9) AI OCR reciept scanner (DIGITAL)
+#9) AI OCR reciept scanner (DIGITAL) --> To be done post GUI
 # adding a budget per month --> DONE
 
 
 
 # Move on to refactoring--> IN PROGRESS
+
+
+
+
 
 
 

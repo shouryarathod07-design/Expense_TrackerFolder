@@ -271,7 +271,9 @@ def monthly_summary_Compare_Budget(Expenses,monthly_budget):
 
 
 
-# Quick_glance_report(Expenses,year,month):
+#def Quick_glance_report(Expenses,year,month):
+
+    
 
 
     # What all do we want:
@@ -326,10 +328,10 @@ def Quick_indicator(Expenses,year,month,monthly_budget):
         print(f"{month_name} {y}-Total Spent: {total:.2f} of ${monthly_budget} budget ({X_of_monthly_budget:.2f}% of the budget has been spent) ")
 
         if X_of_monthly_budget>100:
-            print(f"\n ⚠️ You are outside your budget by ${reducing_expenditure_amount:.2f} ")
+            return(f"\n ⚠️ You are outside your budget by ${reducing_expenditure_amount:.2f} ")
             
         else:
-            print("\n ✅ On track to stay under budget this month ")
+            return(f"\n ✅ On track to stay under budget this month. Current spending :${total:.2f} , Budget:${monthly_budget:.2f} ")
     
 
 def Quick_Top_Category(Expenses,year:int,month:int):
@@ -356,7 +358,7 @@ def Quick_Top_Category(Expenses,year:int,month:int):
     for (y,m),categories in sorted(monthly_cat_totals.items()):
         Max_cat,Max_total = max(categories.items(),key=lambda item:item[1])
         X_of_total = (Max_total/month_total)*100
-        print(f"\n 💸 Top Category: {Max_cat.upper()} --> ${Max_total:.2f} ({X_of_total:.2f}%)")
+        return(f"\n 💸 Top Category: {Max_cat.upper()} --> ${Max_total:.2f} ({X_of_total:.2f}%)")
 
 
 
@@ -397,17 +399,13 @@ def Quick_month_over_month_change(Expenses,year,month):
     # calculate the % change
 
     percentage_change_x_y = ((current_month_x-prev_month_y)/prev_month_y)*100
-    # debugging
-    for key,value in monthly_totals_Previous_Month.items():
-        print(f"{key}:{value}")
-    for key,value in monthly_totals.items():
-        print(f"{key}:{value}")
+    
 
     if percentage_change_x_y<0:
-        print(f"Spending is down this month by {abs(percentage_change_x_y):.2f}%")
+        return(f"\n 📉 Spending is down this month by {abs(percentage_change_x_y):.2f}%")
 
     else:
-        print(f"Spending is up this month by {(percentage_change_x_y):.2f}%")
+        return(f" \n 📈 Spending is up this month by {(percentage_change_x_y):.2f}%")
 
 
 
@@ -434,7 +432,10 @@ def Quick_DailyBurn_rate(Expenses,year,month):
         days = (max_date - min_date).days + 1  # include both start & end
         avg = total__ / days if days > 0 else Decimal("0")
 
-        print(f"{y}-{m:02d}: ${avg:.2f}/day over {days} days, total ${total__:.2f}")
+        return(f"\n 🔥 {y}-{m:02d}: ${avg:.2f}/day over {days} days, total ${total__:.2f}")
+    
+
+
 
 
 
