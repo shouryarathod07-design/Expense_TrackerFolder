@@ -1,110 +1,135 @@
 [
   {
+    "id": "8e07c31b-5074-4a3a-9bd0-1b667959681d",
     "name": "Coffee",
     "price": "5.60",
-    "date": "2025-09-23",
-    "category": "food"
+    "expense_date": "2025-09-23",
+    "category": "Food"
   },
   {
-    "name": "Bose headphones",
+    "id": "34fa1476-dd8c-46a5-99e2-f56a41cf4a48",
+    "name": "Bose Headphones",
     "price": "569.87",
-    "date": "2025-09-11",
-    "category": "ent"
+    "expense_date": "2025-09-11",
+    "category": "Ent"
   },
   {
+    "id": "1ff67712-d894-44dd-86ef-03b80d8937a9",
     "name": "Meiji Fresh Milk 2L",
     "price": "6.70",
-    "date": "2025-10-02",
-    "category": "food"
+    "expense_date": "2025-10-02",
+    "category": "Food"
   },
   {
-    "name": "Suvai IDLY DOSA WET FLOUR 1 kg",
+    "id": "75397108-8e09-47c6-84d8-cea1f0871847",
+    "name": "Suvai Idly Dosa Wet Flour 1 Kg",
     "price": "8.00",
-    "date": "2025-10-02",
-    "category": "food"
+    "expense_date": "2025-10-02",
+    "category": "Food"
   },
   {
+    "id": "4a931eae-69ae-4ed1-b328-5ac639010394",
     "name": "Calvin Klein Hoodie",
-    "price": "60",
-    "date": "2025-10-14",
-    "category": "clothing"
+    "price": "60.00",
+    "expense_date": "2025-10-14",
+    "category": "Clothing"
   },
   {
+    "id": "0379a6e0-e526-4ca4-8b43-32c9f925ac78",
     "name": "Go Pro Gift",
-    "price": "320",
-    "date": "2024-11-12",
-    "category": "others"
+    "price": "320.00",
+    "expense_date": "2024-11-12",
+    "category": "Others"
   },
   {
+    "id": "47fd348c-af0b-4e0a-8145-527054478aa5",
     "name": "Onion",
     "price": "1.47",
-    "date": "2025-10-06",
-    "category": "food"
+    "expense_date": "2025-10-06",
+    "category": "Food"
   },
   {
+    "id": "7c052bf6-2c42-4642-a169-399a9af892a8",
     "name": "Meiji Fresh Milk 2L",
     "price": "6.70",
-    "date": "2025-10-06",
-    "category": "food"
+    "expense_date": "2025-10-06",
+    "category": "Food"
   },
   {
+    "id": "1816c8d0-224a-40fb-b459-b100e061189e",
     "name": "Dashi Go Go",
     "price": "43.67",
-    "date": "2025-10-04",
-    "category": "ent"
+    "expense_date": "2025-10-04",
+    "category": "Ent"
   },
   {
-    "name": "Greenfiled Fresh Milk FU",
+    "id": "2e159719-c301-445c-a73a-ee6f24235f8d",
+    "name": "Greenfiled Fresh Milk Fu",
     "price": "6.05",
-    "date": "2025-10-12",
-    "category": "food"
+    "expense_date": "2025-10-12",
+    "category": "Food"
   },
   {
-    "name": "Seng Choon Farm Fresh EGG",
+    "id": "9be09571-e604-4504-a76c-f720f33c43dc",
+    "name": "Seng Choon Farm Fresh Egg",
     "price": "4.00",
-    "date": "2025-10-12",
-    "category": "food"
+    "expense_date": "2025-10-12",
+    "category": "Food"
   },
   {
+    "id": "9246205a-bec9-474c-803f-a9068029a52d",
     "name": "Salmon Fillet",
     "price": "6.95",
-    "date": "2025-10-12",
-    "category": "food"
+    "expense_date": "2025-10-12",
+    "category": "Food"
   },
   {
+    "id": "9c7d4e8a-89bf-48b2-b5b6-1459e28c3acd",
     "name": "Bread",
     "price": "3.10",
-    "date": "2025-10-12",
-    "category": "food"
+    "expense_date": "2025-10-12",
+    "category": "Food"
   },
   {
+    "id": "624e8a07-02e2-439e-8b4f-11a7e5b35e70",
     "name": "Drinks",
-    "price": "20",
-    "date": "2025-10-04",
-    "category": "ent"
+    "price": "20.00",
+    "expense_date": "2025-10-04",
+    "category": "Ent"
   },
   {
+    "id": "00744ac9-badd-4ad7-9d45-96fb33f1eb48",
     "name": "Dandiya",
-    "price": "38",
-    "date": "2025-09-20",
-    "category": "ent"
+    "price": "38.00",
+    "expense_date": "2025-09-20",
+    "category": "Ent"
   },
   {
+    "id": "5d052baa-b67a-4086-92ca-e21151ceea3a",
     "name": "Gojek Taxi",
     "price": "10.40",
-    "date": "2025-10-14",
-    "category": "travel"
+    "expense_date": "2025-10-14",
+    "category": "Travel"
   },
   {
-    "name": "Tres Keratube SMOOTH",
+    "id": "01d040f1-5eff-4dbe-82a6-10e602cfc4ae",
+    "name": "Tres Keratube Smooth",
     "price": "8.65",
-    "date": "2025-10-15",
-    "category": "others"
+    "expense_date": "2025-10-15",
+    "category": "Others"
   },
   {
+    "id": "776af61a-6f3f-4e12-8950-242c9034984b",
     "name": "Hooks",
     "price": "2.50",
-    "date": "2025-10-15",
-    "category": "misc"
+    "expense_date": "2025-10-15",
+    "category": "Misc"
+  },
+  {
+    "id": "1a814da3-8bb8-451e-8f5a-0e4a2df7b914",
+    "name": "Test3",
+    "price": "42.32",
+    "expense_date": "2025-10-24",
+    "category": "Others"
   }
 ]
