@@ -1,4 +1,4 @@
-# backend/charts.py
+# Backend/charts.py
 # Solely to be used for creating charts and visualizations for Expense data.
 # Refactored for clean modular backend integration.
 
@@ -13,20 +13,24 @@ from Expense_TrackerFolder.Backend.models import Expense
 
 
 # --------------------------------------------------------------
+# Helper: resolve the correct data/plots directory
+# --------------------------------------------------------------
+def _get_plot_dir() -> Path:
+    """
+    Returns the absolute path to the data/plots folder inside Expense_TrackerFolder.
+    Automatically creates it if missing.
+    """
+    project_root = Path(__file__).resolve().parents[1]  # Expense_TrackerFolder
+    plot_dir = project_root / "data" / "plots"
+    plot_dir.mkdir(parents=True, exist_ok=True)
+    return plot_dir
+
+
+# --------------------------------------------------------------
 # 1️⃣ Monthly Spending vs Budget Bar Chart
 # --------------------------------------------------------------
-def monthly_spending_chart(expenses: List[Expense], year: int, budget_file: str = "data/budget.json") -> Optional[Path]:
-    """
-    Generates a bar chart showing total monthly spending vs the set monthly budget for a given year.
-
-    Args:
-        expenses: list of Expense objects
-        year: target year for visualization
-        budget_file: path to JSON file containing {"monthly_budget": value}
-
-    Returns:
-        Path to saved chart image, or None if failed.
-    """
+def monthly_spending_chart(expenses: List[Expense], year: int, budget_file: str = None) -> Optional[Path]:
+    """Generates a bar chart showing total monthly spending vs budget for a given year."""
 
     if not expenses:
         print("⚠️ No expenses available to plot.")
@@ -47,7 +51,11 @@ def monthly_spending_chart(expenses: List[Expense], year: int, budget_file: str 
     totals = [monthly_totals[m] for m in months]
     month_labels = [datetime(year, m, 1).strftime("%b") for m in months]
 
-    # --- Load monthly budget (optional) ---
+    # --- Load monthly budget ---
+    if budget_file is None:
+        project_root = Path(__file__).resolve().parents[1]
+        budget_file = project_root / "data" / "budget.json"
+
     try:
         with open(budget_file, "r", encoding="utf-8") as f:
             value = json.load(f)
@@ -69,7 +77,6 @@ def monthly_spending_chart(expenses: List[Expense], year: int, budget_file: str 
             label=f"Budget (${monthly_budget})"
         )
 
-    # Titles and labels
     plt.title(f"Monthly Spending vs Budget — {year}")
     plt.xlabel("Month")
     plt.ylabel("Amount ($)")
@@ -77,9 +84,8 @@ def monthly_spending_chart(expenses: List[Expense], year: int, budget_file: str 
     plt.grid(axis="y", linestyle="--", alpha=0.6)
     plt.tight_layout()
 
-    # --- Save ---
-    output_dir = Path("data/plots")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # --- Save chart ---
+    output_dir = _get_plot_dir()
     output_path = output_dir / f"monthly_spending_{year}.png"
 
     try:
@@ -101,11 +107,7 @@ def monthly_spending_category_pie(
     month: int,
     threshold_percentage: float = 6.0
 ) -> Optional[Path]:
-    """
-    Creates a pie chart showing spending distribution by category for a given month/year.
-
-    Small categories under `threshold_percentage` are merged into "Minor Categories".
-    """
+    """Creates a pie chart showing spending distribution by category for a given month/year."""
 
     monthly_cat_totals = defaultdict(lambda: defaultdict(Decimal))
 
@@ -117,7 +119,7 @@ def monthly_spending_category_pie(
         print(f"⚠️ No expenses recorded for {month}/{year}. Nothing to show.")
         return None
 
-    # --- Prepare labels and sizes ---
+    # --- Prepare data ---
     pie_labels, pie_sizes = [], []
     for (y, m), categories in sorted(monthly_cat_totals.items()):
         for cat, total in sorted(categories.items()):
@@ -143,11 +145,11 @@ def monthly_spending_category_pie(
         merged_labels.append(f"Minor Categories (<{threshold_percentage:.0f}%)")
         merged_sizes.append(minor_total)
 
-    # --- Plot pie chart ---
+    # --- Plot ---
     plt.figure(figsize=(8, 8))
     colors = list(plt.cm.tab20.colors[:len(merged_labels)])
     if "Minor Categories" in merged_labels[-1]:
-        colors[-1] = "#d3d3d3"  # grey for minor categories
+        colors[-1] = "#d3d3d3"
 
     def autopct_with_values(pct):
         absolute = pct * total_spent / 100.0
@@ -166,8 +168,7 @@ def monthly_spending_category_pie(
     plt.legend(merged_labels, title="Categories", loc="center left", bbox_to_anchor=(-0.1, 0))
 
     # --- Save ---
-    output_dir = Path("data/plots")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = _get_plot_dir()
     output_path = output_dir / f"category_breakdown_{year}_{month:02d}.png"
 
     try:
