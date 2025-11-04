@@ -131,5 +131,21 @@
     "price": "42.32",
     "expense_date": "2025-10-24",
     "category": "Others"
+  },
+  {
+    "id": "a2352d51-c48d-4d29-8a6e-56319827db2f",
+    "name": "Api_Test_Add_Expense",
+    "price": "21.21",
+    "expense_date": "2025-10-31",
+    "category": "Others"
+  },
+  {
+    "id": "d5d8a8c3-aa2c-42aa-af26-67aec5bd8639",
+    "name": "Api_Test_Edit_Expense",
+    "price": "12.31",
+    "expense_date": "2025-10-31",
+    "category": "Others"
   }
 ]
+
+

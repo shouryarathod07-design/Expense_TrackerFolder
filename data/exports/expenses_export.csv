@@ -18,3 +18,5 @@ id,name,price,expense_date,category
 01d040f1-5eff-4dbe-82a6-10e602cfc4ae,Tres Keratube Smooth,8.65,2025-10-15,Others
 776af61a-6f3f-4e12-8950-242c9034984b,Hooks,2.50,2025-10-15,Misc
 1a814da3-8bb8-451e-8f5a-0e4a2df7b914,Test3,42.32,2025-10-24,Others
+a2352d51-c48d-4d29-8a6e-56319827db2f,Api_Test_Add_Expense,21.21,2025-10-31,Others
+d5d8a8c3-aa2c-42aa-af26-67aec5bd8639,Api_Test_Edit_Expense,12.31,2025-10-31,Others
