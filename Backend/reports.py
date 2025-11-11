@@ -146,7 +146,7 @@ def quick_top_category(expenses: List[Expense], year: int, month: int) -> str:
     max_cat, max_val = max(category_totals.items(), key=lambda kv: kv[1])
     total = sum(category_totals.values())
     pct = (max_val / total) * 100 if total else Decimal("0")
-    return f"💸 Top Category: {max_cat} — ${max_val:.2f} ({pct:.1f}% of total)"
+    return f"{max_cat}: ${max_val:.2f} \n({pct:.1f}% of total expenses this month)"
 
 
 def quick_month_over_month_change(expenses: List[Expense], year: int, month: int) -> str:

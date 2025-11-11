@@ -20,3 +20,8 @@ id,name,price,expense_date,category
 1a814da3-8bb8-451e-8f5a-0e4a2df7b914,Test3,42.32,2025-10-24,Others
 a2352d51-c48d-4d29-8a6e-56319827db2f,Api_Test_Add_Expense,21.21,2025-10-31,Others
 d5d8a8c3-aa2c-42aa-af26-67aec5bd8639,Api_Test_Edit_Expense,12.31,2025-10-31,Others
+b5d467fb-6cd6-40e1-9e82-80019e7286e8,Lengthofnameexpesne,Food,50.00,2025-11-06,
+92e8e109-5ed9-42ed-8793-c301db8ab285,Testexpense23,Others,2.00,2025-11-09,
+6a709777-077c-49c5-9c71-c9d22e3e5277,Notesnotes,Food,21.00,2025-11-09,
+bbf50347-9bd9-4771-a981-eb4e85eb366c,Testnotes,Food,1.00,2025-11-10,Notes???
+33cafba3-7a79-4166-bc0b-19ce50476ab6,Notesvanish,Others,1.00,2025-11-10,DIS A PEAR

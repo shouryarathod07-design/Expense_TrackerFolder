@@ -16,13 +16,15 @@ class Expense:
         price: Union[str, float, Decimal],
         expense_date: Union[str, date],
         category: str,
-        id: Optional[str] = None
+        id: Optional[str] = None,
+        note: Optional[str] = None
     ):
         self.id = id or str(uuid.uuid4())
         self.name = name.strip().title()
         self.price = self._parse_price(price)
         self.expense_date = self._parse_date(expense_date)   # ✅ unified here
         self.category = category.strip().title()
+        self.note = note
 
     # ---------------------------
     # Validation / Parsing
@@ -49,13 +51,14 @@ class Expense:
     # ---------------------------
     # Serialization Helpers
     # ---------------------------
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
-            "price": str(self.price),
-            "expense_date": self.expense_date.isoformat(),   # ✅ unified key
             "category": self.category,
+            "price": str(self.price),
+            "expense_date": self.expense_date.isoformat(),
+            "note": getattr(self, "note", None),  # ✅ safe fallback
         }
 
     @classmethod
@@ -65,7 +68,8 @@ class Expense:
             name=data["name"],
             price=data["price"],
             expense_date=data.get("expense_date") or data.get("date"),  # ✅ backward compatible
-            category=data["category"]
+            category=data["category"],
+            note = data.get("note")
         )
 
     # ---------------------------

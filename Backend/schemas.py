@@ -10,7 +10,8 @@ class ExpenseBase(BaseModel):
     price: Decimal = Field(..., gt=0, example="4.50")
     expense_date: date = Field(..., example="2025-10-20")  # ✅ renamed
     category: str = Field(..., example="Food")
-
+    note: Optional[str] = None
+    
     class Config:
         orm_mode = True
         json_encoders = {Decimal: str}
@@ -33,6 +34,7 @@ class ExpenseUpdate(BaseModel):
     price: Optional[Decimal] = Field(None, gt=0)
     expense_date: Optional[date] = None  # ✅ match renamed field
     category: Optional[str] = None
+    note: Optional[str] = None
 
 
 

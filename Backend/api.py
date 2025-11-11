@@ -10,7 +10,11 @@ from decimal import Decimal
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
-
+from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
+from collections import defaultdict
+from decimal import Decimal
+from Expense_TrackerFolder.Backend.schemas import ExpenseCreate
 
 # ------------------------------------------------------
 # ✅ Ensure project root is in sys.path (for imports)
@@ -60,6 +64,16 @@ logger.setLevel(logging.DEBUG)
 # ✅ FastAPI App Setup
 # ------------------------------------------------------
 app = FastAPI(title="Expense Tracker API", version="1.0")
+
+# --- CORS setup ---
+# ✅ Enable CORS so frontend (Vite) can talk to backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Shared JSON storage instance
 store = JsonStorage()
@@ -121,34 +135,69 @@ def get_expense(expense_id: str):
 # ------------------------------------------------------
 # ✅ Add New Expense
 # ------------------------------------------------------
+# ------------------------------------------------------
+# ✅ Add New Expense
+# ------------------------------------------------------
 @app.post("/expenses", response_model=dict)
-def add_expense(name: str, price: float, category: str, date: str):
+def add_expense(expense: ExpenseCreate):
+    """
+    Add a new expense entry to the JSON store.
+    Expects a JSON body matching ExpenseCreate schema.
+    """
     try:
-        new_expense = Expense(name, Decimal(price), date, category)
+        new_expense = Expense(
+            name=expense.name,
+            price=Decimal(expense.price),
+            expense_date=expense.expense_date,  # ✅ use correct field name
+            category=expense.category,
+            note=expense.note  # ✅ include optional note
+        )
         store.add_expense(new_expense)
         logger.debug(f"[DEBUG] 💾 Added new expense: {new_expense.to_dict()}")
         return new_expense.to_dict()
     except Exception as e:
         logger.error(f"[ERROR] Failed to add expense: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to add expense: {e}")
+
     
 
 # exporting to csv endpoint
 
 
+#@app.post("/expenses/export")
+#def export_expenses_to_csv(append: bool = True):
+ #   """Export all expenses to CSV (creates data/exports if missing)."""
+  #  try:
+   #     file_path = export_to_csv(store.expenses, append=append)
+    #    if not file_path:
+     #       raise HTTPException(status_code=500, detail="Export failed.")
+      #  return {
+       #     "message": "✅ Export successful",
+        #    "file_path": str(file_path)
+        #}
+    #except Exception as e:
+    #    raise HTTPException(status_code=500, detail=f"Export failed: {e}")
+from fastapi.responses import FileResponse
+
 @app.post("/expenses/export")
 def export_expenses_to_csv(append: bool = True):
-    """Export all expenses to CSV (creates data/exports if missing)."""
+    """
+    Export all expenses to CSV.
+    Returns a downloadable CSV file.
+    """
     try:
         file_path = export_to_csv(store.expenses, append=append)
         if not file_path:
             raise HTTPException(status_code=500, detail="Export failed.")
-        return {
-            "message": "✅ Export successful",
-            "file_path": str(file_path)
-        }
+
+        return FileResponse(
+            path=file_path,
+            media_type="text/csv",
+            filename="expenses_export.csv"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Export failed: {e}")
+
     
 
 
@@ -172,50 +221,87 @@ def generate_category_pie(year: int, month: int):
 
     
 
-# reports endpoint
 @app.get("/reports/summary")
-def get_reports_summary():
+def get_reports_summary(year: Optional[int] = Query(None), month: Optional[int] = Query(None)):
     """
-    Generate a clean, JSON-safe summary report (monthly, weekly, annual).
-    Formats keys like '2025-10' instead of '(2025, 10)'.
+    Return detailed expense summary for the given month/year.
+    If no month/year is provided, return full summaries.
     """
     try:
-        monthly = monthly_summary(store.expenses)
-        weekly = weekly_summary(store.expenses)
-        annual = annual_summary(store.expenses)
+        expenses = store.expenses
 
-        # -------------------------------
-        # 🧩 Helper to format safe dicts
-        # -------------------------------
-        def safe_monthly_dict(data):
-            return {
-                f"{year}-{month:02d}": float(total)
-                for (year, month), total in data.items()
-            }
+        # ✅ If year/month provided, filter expenses
+        if year and month:
+            expenses = [
+                e for e in expenses
+                if e.expense_date.year == year and e.expense_date.month == month
+            ]
 
-        def safe_weekly_dict(data):
-            return {
-                f"{year}-W{week:02d}": {
-                    "total": float(values["total"]),
-                    "start": values["start"].isoformat() if values["start"] else None,
-                    "end": values["end"].isoformat() if values["end"] else None,
+        if not expenses:
+            return jsonable_encoder({
+                "total": 0,
+                "avg_per_day": 0,
+                "per_category": {},
+                "message": "⚠️ No expenses found for that period."
+            })
+
+        # ✅ Compute total
+        total = sum((e.price for e in expenses), Decimal("0"))
+
+        # ✅ Average per day
+        min_d = min(e.expense_date for e in expenses)
+        max_d = max(e.expense_date for e in expenses)
+        days = (max_d - min_d).days + 1
+        avg_per_day = total / days if days > 0 else Decimal("0")
+
+        # ✅ Per-category totals
+        per_category = defaultdict(Decimal)
+        for e in expenses:
+            per_category[e.category] += e.price
+
+        # ✅ Full dataset (if year/month not specified)
+        if not (year and month):
+            monthly = monthly_summary(store.expenses)
+            weekly = weekly_summary(store.expenses)
+            annual = annual_summary(store.expenses)
+
+            def safe_monthly_dict(data):
+                return {
+                    f"{y}-{m:02d}": float(t)
+                    for (y, m), t in data.items()
                 }
-                for (year, week), values in data.items()
-            }
 
-        def safe_annual_dict(data):
-            return {str(year): float(total) for year, total in data.items()}
+            def safe_weekly_dict(data):
+                return {
+                    f"{y}-W{w:02d}": {
+                        "total": float(v["total"]),
+                        "start": v["start"].isoformat() if v["start"] else None,
+                        "end": v["end"].isoformat() if v["end"] else None,
+                    }
+                    for (y, w), v in data.items()
+                }
 
-        # -------------------------------
-        # 🧮 Build clean unified response
-        # -------------------------------
-        response = {
-            "monthly_summary": safe_monthly_dict(monthly),
-            "weekly_summary": safe_weekly_dict(weekly),
-            "annual_summary": safe_annual_dict(annual),
-        }
+            def safe_annual_dict(data):
+                return {str(y): float(t) for y, t in data.items()}
 
-        return jsonable_encoder(response)
+            return jsonable_encoder({
+                "total": float(total),
+                "avg_per_day": float(avg_per_day),
+                "per_category": {k: float(v) for k, v in per_category.items()},
+                "monthly_summary": safe_monthly_dict(monthly),
+                "weekly_summary": safe_weekly_dict(weekly),
+                "annual_summary": safe_annual_dict(annual),
+            })
+
+        # ✅ Return month-specific summary
+        month_name = datetime(year, month, 1).strftime("%B")
+        return jsonable_encoder({
+            "period": f"{month_name} {year}",
+            "total": float(total),
+            "avg_per_day": float(avg_per_day),
+            "days": days,
+            "per_category": {k: float(v) for k, v in per_category.items()},
+        })
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate report: {e}")
@@ -278,30 +364,31 @@ def get_quick_glance(year: int, month: int):
 # ------------------------------------------------------
 # ✅ Update Existing Expense
 # ------------------------------------------------------
-@app.put("/expenses/{expense_id}", response_model=dict)
-def update_expense(
-    expense_id: str,
-    name: Optional[str] = None,
-    price: Optional[float] = None,
-    category: Optional[str] = None,
-    date: Optional[str] = None,
-):
-    for e in store.expenses:
-        if e.id == expense_id:
-            if name:
-                e.name = name
-            if price:
-                e.price = Decimal(price)
-            if category:
-                e.category = category
-            if date:
-                e.expense_date = date
+@app.put("/expenses/{expense_id}")
+def update_expense(expense_id: str, payload: dict):
+    """Update an existing expense in memory and save to disk."""
+    expense = next((e for e in store.expenses if e.id == expense_id), None)
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
 
-            store.save_expenses(store.expenses)
-            logger.debug(f"[DEBUG] ✏️ Updated expense {expense_id}")
-            return e.to_dict()
+    # Update allowed fields safely
+    if "name" in payload:
+        expense.name = payload["name"]
+    if "price" in payload:
+        expense.price = Decimal(str(payload["price"]))
+    if "category" in payload:
+        expense.category = payload["category"]
+    if "expense_date" in payload:
+        expense.expense_date = datetime.strptime(payload["expense_date"], "%Y-%m-%d").date()
 
-    raise HTTPException(status_code=404, detail="Expense not found")
+    # Persist to JSON
+    store.save_expenses(store.expenses)
+    print(f"[DEBUG] Expense {expense_id} updated and saved.")
+
+    return {"message": "Expense updated", "expense": expense.to_dict()}
+    
+   
+
 
 
 # ------------------------------------------------------
