@@ -2,6 +2,9 @@
 # Backend/api.py
 # Expense Tracker FastAPI Backend
 # ===============================
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 import sys
 import os
@@ -27,6 +30,8 @@ print(f"[DEBUG] ✅ Added project root: {PROJECT_ROOT}", flush=True)
 # ------------------------------------------------------
 # ✅ Imports (after sys.path fix)
 # ------------------------------------------------------
+
+
 from Expense_TrackerFolder.Backend.models import Expense
 from Expense_TrackerFolder.Backend.storage import JsonStorage
 from Expense_TrackerFolder.Backend.reports import quick_indicator, quick_top_category,quick_daily_burn_rate,quick_month_over_month_change
@@ -64,6 +69,9 @@ logger.setLevel(logging.DEBUG)
 # ✅ FastAPI App Setup
 # ------------------------------------------------------
 app = FastAPI(title="Expense Tracker API", version="1.0")
+from Expense_TrackerFolder.Backend.routes import ocr
+app.include_router(ocr.router)
+
 
 # --- CORS setup ---
 # ✅ Enable CORS so frontend (Vite) can talk to backend

@@ -144,22 +144,6 @@
     "note": null
   },
   {
-    "id": "b5d467fb-6cd6-40e1-9e82-80019e7286e8",
-    "name": "Lengghtrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-    "category": "Food",
-    "price": "50",
-    "expense_date": "2025-11-06",
-    "note": null
-  },
-  {
-    "id": "92e8e109-5ed9-42ed-8793-c301db8ab285",
-    "name": "Testexpense23",
-    "category": "Others",
-    "price": "2.00",
-    "expense_date": "2025-11-09",
-    "note": null
-  },
-  {
     "id": "6a709777-077c-49c5-9c71-c9d22e3e5277",
     "name": "Notesnotes",
     "category": "Food",
@@ -182,5 +166,37 @@
     "price": "47.00",
     "expense_date": "2025-11-08",
     "note": "never travelling that much by taxi again"
+  },
+  {
+    "id": "2f21422d-6a2e-47a8-bee4-0dbe08cecb17",
+    "name": "Testing12",
+    "category": "Others",
+    "price": "1.00",
+    "expense_date": "2025-11-12",
+    "note": "testing if can add w/o scan"
+  },
+  {
+    "id": "17b42360-0f5e-4774-8092-fefdb3dd1a69",
+    "name": "Sri Selvi",
+    "category": "Food",
+    "price": "7.80",
+    "expense_date": "2025-07-23",
+    "note": "Date Option still not working for OCR not autofilling"
+  },
+  {
+    "id": "baf09975-af83-490b-b317-4b8421025f03",
+    "name": "Sri Selvi (Duplicate Test)",
+    "category": "Food",
+    "price": "7.80",
+    "expense_date": "2025-07-23",
+    "note": "First tiem date auto completed post OCR!"
+  },
+  {
+    "id": "cd9cb8d5-24bb-49a3-a1bf-3584925bc6e6",
+    "name": "Prime Supermarket ",
+    "category": "Food",
+    "price": "34.2",
+    "expense_date": "2025-10-12",
+    "note": "OCR date now autocompleted lesgooo!"
   }
 ]
