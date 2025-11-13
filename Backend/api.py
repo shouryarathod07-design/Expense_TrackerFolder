@@ -18,6 +18,8 @@ from datetime import datetime
 from collections import defaultdict
 from decimal import Decimal
 from Expense_TrackerFolder.Backend.schemas import ExpenseCreate
+from starlette.middleware.sessions import SessionMiddleware
+import os
 
 # ------------------------------------------------------
 # ✅ Ensure project root is in sys.path (for imports)
@@ -69,6 +71,16 @@ logger.setLevel(logging.DEBUG)
 # ✅ FastAPI App Setup
 # ------------------------------------------------------
 app = FastAPI(title="Expense Tracker API", version="1.0")
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SESSION_SECRET", "SHREK"),
+)
+
+
+from Expense_TrackerFolder.Backend.auth import router as auth_router
+app.include_router(auth_router)
+
+
 from Expense_TrackerFolder.Backend.routes import ocr
 app.include_router(ocr.router)
 
@@ -105,7 +117,14 @@ def list_expenses():
     logger.debug(f"Listing all expenses ({len(store.expenses)})")
     return [e.to_dict() for e in store.expenses]
 
+#temp
 
+@app.get("/test-env")
+def test_env():
+    import os
+    return {
+        "redirect": os.getenv("GOOGLE_REDIRECT_URI")
+    }
 # ------------------------------------------------------
 # ✅ Search & Filter (Placed BEFORE /{expense_id})
 # ------------------------------------------------------

@@ -144,48 +144,16 @@
     "note": null
   },
   {
-    "id": "6a709777-077c-49c5-9c71-c9d22e3e5277",
-    "name": "Notesnotes",
-    "category": "Food",
-    "price": "21.00",
-    "expense_date": "2025-11-09",
-    "note": null
-  },
-  {
-    "id": "33cafba3-7a79-4166-bc0b-19ce50476ab6",
-    "name": "Notesvanish",
-    "category": "Others",
-    "price": "1.00",
-    "expense_date": "2025-11-10",
-    "note": "DIS A PEAR"
-  },
-  {
     "id": "3c5efc10-8eae-4068-8b69-c628d12bc711",
     "name": "Taxi :(",
     "category": "Travel",
-    "price": "47.00",
+    "price": "48.00",
     "expense_date": "2025-11-08",
     "note": "never travelling that much by taxi again"
   },
   {
-    "id": "2f21422d-6a2e-47a8-bee4-0dbe08cecb17",
-    "name": "Testing12",
-    "category": "Others",
-    "price": "1.00",
-    "expense_date": "2025-11-12",
-    "note": "testing if can add w/o scan"
-  },
-  {
-    "id": "17b42360-0f5e-4774-8092-fefdb3dd1a69",
-    "name": "Sri Selvi",
-    "category": "Food",
-    "price": "7.80",
-    "expense_date": "2025-07-23",
-    "note": "Date Option still not working for OCR not autofilling"
-  },
-  {
     "id": "baf09975-af83-490b-b317-4b8421025f03",
-    "name": "Sri Selvi (Duplicate Test)",
+    "name": "Sri Selvi",
     "category": "Food",
     "price": "7.80",
     "expense_date": "2025-07-23",
@@ -193,10 +161,34 @@
   },
   {
     "id": "cd9cb8d5-24bb-49a3-a1bf-3584925bc6e6",
-    "name": "Prime Supermarket ",
+    "name": "Prime Supermarket",
     "category": "Food",
-    "price": "34.2",
+    "price": "34.20",
     "expense_date": "2025-10-12",
     "note": "OCR date now autocompleted lesgooo!"
+  },
+  {
+    "id": "2113aa9c-0996-49bd-bad2-3b1b3a956f51",
+    "name": "Prime ",
+    "category": "Food",
+    "price": "23.9",
+    "expense_date": "2025-09-24",
+    "note": ""
+  },
+  {
+    "id": "2d696945-4a7f-4784-868c-5c36d46aa23d",
+    "name": "Tada Taxi",
+    "category": "Travel",
+    "price": "15.48",
+    "expense_date": "2025-09-30",
+    "note": "Taxi"
+  },
+  {
+    "id": "04883d30-46ff-48a4-b2f9-108ed1341304",
+    "name": "Prime",
+    "category": "Food",
+    "price": "10.35",
+    "expense_date": "2025-11-13",
+    "note": "Prime lesgooooo"
   }
 ]

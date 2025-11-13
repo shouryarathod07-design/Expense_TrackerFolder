@@ -150,14 +150,20 @@ def quick_top_category(expenses: List[Expense], year: int, month: int) -> str:
 
 
 def quick_month_over_month_change(expenses: List[Expense], year: int, month: int) -> str:
-    """Compare spending between given month and previous month."""
+    """Compare spending between given month and previous month (handles year rollover)."""
     def total_for(y, m):
         return sum(e.price for e in expenses if e.expense_date.year == y and e.expense_date.month == m)
 
+    # Compute previous month and year safely
+    prev_year = year if month > 1 else year - 1
+    prev_month = month - 1 if month > 1 else 12
+
     current = total_for(year, month)
-    prev = total_for(year, month - 1 if month > 1 else 12)
+    prev = total_for(prev_year, prev_month)
+
     if prev == 0:
         return "⚠️ Not enough data to compare."
+
     change = ((current - prev) / prev) * 100
     arrow = "📈" if change > 0 else "📉"
     return f"{arrow} Spending {'up' if change > 0 else 'down'} {abs(change):.1f}% from last month."
