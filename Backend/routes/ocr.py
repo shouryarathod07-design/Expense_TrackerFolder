@@ -3,6 +3,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from Backend.services.azure_ocr import extract_text_from_file
 from Backend.services.extract_fields import parse_expense_fields
 
+
 router = APIRouter(prefix="/ocr", tags=["OCR"])
 
 @router.post("/upload")
