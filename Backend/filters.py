@@ -5,7 +5,7 @@
 from datetime import datetime, date
 from typing import List, Optional
 from decimal import Decimal
-from fuzzywuzzy import fuzz    # external library for fuzzy name matching
+from rapidfuzz import fuzz  # external library for fuzzy name matching
 from Backend.models import Expense
 
 
