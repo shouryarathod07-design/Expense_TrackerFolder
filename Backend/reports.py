@@ -9,7 +9,7 @@ from decimal import Decimal
 from datetime import datetime, date, timedelta
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional
-from Expense_TrackerFolder.Backend.models import Expense
+from Backend.models import Expense
 
 
 # ------------------------------------------------------------

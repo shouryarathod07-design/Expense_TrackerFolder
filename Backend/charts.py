@@ -9,7 +9,7 @@ from decimal import Decimal
 from pathlib import Path
 import json
 from typing import List, Optional
-from Expense_TrackerFolder.Backend.models import Expense
+from Backend.models import Expense
 
 
 # --------------------------------------------------------------

@@ -8,7 +8,7 @@ import json
 import shutil
 from pathlib import Path
 from typing import List
-from Expense_TrackerFolder.Backend.models import Expense
+from Backend.models import Expense
 
 # -------------------------------
 # Paths and Directories

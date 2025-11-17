@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 from collections import defaultdict
 from decimal import Decimal
-from Expense_TrackerFolder.Backend.schemas import ExpenseCreate
+from Backend.schemas import ExpenseCreate
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
@@ -34,21 +34,21 @@ print(f"[DEBUG] ✅ Added project root: {PROJECT_ROOT}", flush=True)
 # ------------------------------------------------------
 
 
-from Expense_TrackerFolder.Backend.models import Expense
-from Expense_TrackerFolder.Backend.storage import JsonStorage
-from Expense_TrackerFolder.Backend.reports import quick_indicator, quick_top_category,quick_daily_burn_rate,quick_month_over_month_change
-from Expense_TrackerFolder.Backend.filters import search_filter
-from Expense_TrackerFolder.Backend.reports import (
+from Backend.models import Expense
+from Backend.storage import JsonStorage
+from Backend.reports import quick_indicator, quick_top_category,quick_daily_burn_rate,quick_month_over_month_change
+from Backend.filters import search_filter
+from Backend.reports import (
     monthly_summary,
     weekly_summary,
     annual_summary,
     monthly_summary_compare_budget,
 )
-from Expense_TrackerFolder.Backend.charts import (
+from Backend.charts import (
     monthly_spending_chart,
     monthly_spending_category_pie,
 )
-from Expense_TrackerFolder.Backend.export import export_to_csv
+from Backend.export import export_to_csv
 
 
 # ------------------------------------------------------
@@ -77,11 +77,11 @@ app.add_middleware(
 )
 
 
-from Expense_TrackerFolder.Backend.auth import router as auth_router
+from Backend.auth import router as auth_router
 app.include_router(auth_router)
 
 
-from Expense_TrackerFolder.Backend.routes import ocr
+from Backend.routes import ocr
 app.include_router(ocr.router)
 
 
