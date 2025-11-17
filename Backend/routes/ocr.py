@@ -1,7 +1,7 @@
 # Backend/routes/ocr.py
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from Expense_TrackerFolder.Backend.services.azure_ocr import extract_text_from_file
-from Expense_TrackerFolder.Backend.services.extract_fields import parse_expense_fields
+from Backend.services.azure_ocr import extract_text_from_file
+from Backend.services.extract_fields import parse_expense_fields
 
 router = APIRouter(prefix="/ocr", tags=["OCR"])
 
