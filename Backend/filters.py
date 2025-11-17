@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from typing import List, Optional
-from rapidfuzz import fuzz  # modern, fast fuzzy match library
+from rapidfuzz import fuzz  # fast fuzzy library (newer version??..)
 from Backend.models import Expense
 
 
