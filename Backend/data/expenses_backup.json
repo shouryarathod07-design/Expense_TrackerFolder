@@ -169,9 +169,9 @@
   },
   {
     "id": "2113aa9c-0996-49bd-bad2-3b1b3a956f51",
-    "name": "Prime ",
+    "name": "Prime",
     "category": "Food",
-    "price": "23.9",
+    "price": "23.90",
     "expense_date": "2025-09-24",
     "note": ""
   },
@@ -190,5 +190,29 @@
     "price": "10.35",
     "expense_date": "2025-11-13",
     "note": "Prime lesgooooo"
+  },
+  {
+    "id": "60817e9e-f357-438c-9f91-867e3ebded2b",
+    "name": "Dinner",
+    "category": "Food",
+    "price": "40.00",
+    "expense_date": "2025-11-14",
+    "note": "Collect the other 40 from Raju"
+  },
+  {
+    "id": "7cb3f4c4-2867-4879-af13-2327d2c2b893",
+    "name": "Piedra Negra",
+    "category": "Others",
+    "price": "79.32",
+    "expense_date": "2025-11-14",
+    "note": "FOOD "
+  },
+  {
+    "id": "465d95b9-1133-460a-9fa5-645fb52fdb0c",
+    "name": "Testquick_Storage_Shift",
+    "category": "Misc",
+    "price": "2.00",
+    "expense_date": "2025-11-17",
+    "note": ""
   }
 ]

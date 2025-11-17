@@ -1,0 +1,23 @@
+# --- Python / FastAPI backend ---
+# Virtual environments
+venv/
+Backend/venv/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+*.env
+
+# Local data files (optional – remove if you want data in GitHub)
+data/expenses.json
+data/expenses_backup.json
+data/budget.json
+
+# OS junk
+.DS_Store
+Thumbs.db

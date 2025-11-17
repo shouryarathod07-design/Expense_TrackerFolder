@@ -5,7 +5,6 @@ Keeps persistence logic separate from core application logic.
 """
 
 import json
-import os
 import shutil
 from pathlib import Path
 from typing import List
@@ -14,8 +13,17 @@ from Expense_TrackerFolder.Backend.models import Expense
 # -------------------------------
 # Paths and Directories
 # -------------------------------
-BASE_DIR = Path(__file__).resolve().parent.parent  # project root
+# IMPORTANT:
+# Backend/
+#   storage.py  ← this file
+#   data/       ← data directory (INSIDE Backend folder)
+#
+# BASE_DIR = Backend folder
+# DATA_DIR = Backend/data/
+# -------------------------------
+BASE_DIR = Path(__file__).resolve().parent  # Backend folder
 DATA_DIR = BASE_DIR / "data"
+
 EXPENSES_FILE = DATA_DIR / "expenses.json"
 BACKUP_FILE = DATA_DIR / "expenses_backup.json"
 BUDGET_FILE = DATA_DIR / "budget.json"
@@ -67,7 +75,6 @@ class JsonStorage:
             json.dump([e.to_dict() for e in expenses], f, indent=2)
         tmp_file.replace(self.data_file)
         self.expenses = expenses  # keep internal copy synced
-        # print(f"[DEBUG] Saved {len(expenses)} expenses")
 
     # -------------------------------
     # CRUD Helpers
@@ -100,12 +107,10 @@ class JsonStorage:
         try:
             with BUDGET_FILE.open("r", encoding="utf-8") as f:
                 data = json.load(f)
-            # ✅ Extract numeric value safely
             return float(data.get("monthly_budget", 0.0))
         except Exception as e:
             print(f"⚠️ Could not read budget: {e}")
             return 0.0
-
 
     # -------------------------------
     # Update/Delete Expense
