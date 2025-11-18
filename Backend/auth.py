@@ -18,10 +18,13 @@ GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 JWT_SECRET = os.getenv("JWT_SECRET", "SECRET")
 JWT_ALGO = os.getenv("JWT_ALGORITHM", "HS256")
 
-FRONTEND_SUCCESS_URL = "http://localhost:5173/login/success"
+# 👇 NOW WORKS IN PROD AND DEV
+FRONTEND_SUCCESS_URL = os.getenv(
+    "FRONTEND_SUCCESS_URL",
+    "http://localhost:5173/login/success"
+)
 
 oauth = OAuth()
-
 
 oauth.register(
     name="google",
@@ -31,13 +34,10 @@ oauth.register(
     client_kwargs={"scope": "openid email profile"},
 )
 
-
-# Step 1 — Start login
 @router.get("/auth/login/google")
 async def login_via_google(request: Request):
     return await oauth.google.authorize_redirect(request, GOOGLE_REDIRECT_URI)
 
-# Step 2 — Google callback
 @router.get("/auth/callback")
 async def auth_callback(request: Request):
     try:
@@ -47,15 +47,14 @@ async def auth_callback(request: Request):
         if not user_info:
             raise HTTPException(status_code=400, detail="No user info retrieved")
 
-        # Create JWT
         payload = {
             "email": user_info["email"],
             "name": user_info.get("name"),
             "picture": user_info.get("picture"),
         }
+
         access_token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGO)
 
-        # Redirect to frontend
         redirect_url = (
             f"{FRONTEND_SUCCESS_URL}"
             f"?token={access_token}"
