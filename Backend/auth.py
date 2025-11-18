@@ -19,10 +19,9 @@ JWT_SECRET = os.getenv("JWT_SECRET", "SECRET")
 JWT_ALGO = os.getenv("JWT_ALGORITHM", "HS256")
 
 # 👇 NOW WORKS IN PROD AND DEV
-FRONTEND_SUCCESS_URL = os.getenv(
-    "FRONTEND_SUCCESS_URL",
-    "http://localhost:5173/login/success"
-)
+
+FRONTEND_SUCCESS_URL = os.getenv("FRONTEND_SUCCESS_URL")
+
 
 oauth = OAuth()
 
