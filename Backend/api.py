@@ -12,20 +12,13 @@ import logging
 from decimal import Decimal
 from typing import List, Optional
 
-from datetime import datetime
-from collections import defaultdict
-
-from fastapi import (
-    FastAPI,
-    HTTPException,
-    Query,
-    Depends,
-)
+from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.responses import FileResponse
+from datetime import datetime
+from collections import defaultdict
 
 # ------------------------------------------------------
 # ✅ Ensure project root is in sys.path (for imports)
@@ -36,11 +29,20 @@ if PROJECT_ROOT not in sys.path:
 print(f"[DEBUG] ✅ Added project root: {PROJECT_ROOT}", flush=True)
 
 # ------------------------------------------------------
-# ✅ Imports AFTER path fix
+# 🗄  DB + Models + CRUD
 # ------------------------------------------------------
+from sqlalchemy.ext.asyncio import AsyncSession
+from Backend.db import engine, Base, get_session
+from Backend.models_sql import ExpenseDB
+from Backend import crud
+
+# Domain model (for reports / filters)
+from Backend.models import Expense
+
+# Schemas (Pydantic)
 from Backend.schemas import ExpenseCreate, ExpenseUpdate, ExpenseRead
-from Backend.models import Expense  # domain model (in-memory)
-from Backend.storage import JsonStorage  # now used ONLY for budget
+
+# Existing analytics helpers
 from Backend.reports import (
     quick_indicator,
     quick_top_category,
@@ -57,14 +59,11 @@ from Backend.charts import (
 )
 from Backend.export import export_to_csv
 
-from Backend.db import get_session, engine, Base
-from Backend.models_sql import ExpenseDB
-from Backend import crud
-
-from fastapi.responses import FileResponse
+# JSON storage kept ONLY for budget
+from Backend.storage import JsonStorage
 
 # ------------------------------------------------------
-# ✅ Logging Setup
+# Logging Setup
 # ------------------------------------------------------
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("expense_tracker")
@@ -79,7 +78,7 @@ if not logger.handlers:
 logger.setLevel(logging.DEBUG)
 
 # ------------------------------------------------------
-# ✅ FastAPI App + Session Middleware (Google OAuth)
+# FastAPI App + Session Middleware (Required for Google OAuth)
 # ------------------------------------------------------
 app = FastAPI(title="Expense Tracker API", version="1.0")
 
@@ -88,15 +87,17 @@ app.add_middleware(
     secret_key=os.getenv("SESSION_SECRET", "SHREK"),
 )
 
-# Routers
+# ------------------------------------------------------
+# OAuth + OCR Routers
+# ------------------------------------------------------
 from Backend.auth import router as auth_router
-app.include_router(auth_router)
-
 from Backend.routes import ocr
+
+app.include_router(auth_router)
 app.include_router(ocr.router)
 
 # ------------------------------------------------------
-# 🚀 CORS — localhost + Vercel frontend
+# 🚀 CORS — includes Vercel URL
 # ------------------------------------------------------
 VERCEL_FRONTEND = "https://expense-tracker-frontend-olive.vercel.app"
 
@@ -106,97 +107,125 @@ app.add_middleware(
         "http://localhost:5173",  # local dev
         VERCEL_FRONTEND,          # production frontend
     ],
-    allow_credentials=True,
+    allow_credentials=True,       # REQUIRED for OAuth cookies
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ------------------------------------------------------
-# 🧠 Budget storage (still JSON for now)
-# ------------------------------------------------------
-budget_store = JsonStorage()  # we only use its budget methods now
-
-# ------------------------------------------------------
-# 🗄️ DB startup: create tables if needed
+# 🧱 DB startup: create tables if missing
 # ------------------------------------------------------
 @app.on_event("startup")
 async def on_startup():
-    from sqlalchemy.exc import SQLAlchemyError
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    print("✅ Database tables ensured")
 
-    try:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        print("[DB] ✅ Tables created / verified")
-    except SQLAlchemyError as e:
-        print(f"[DB] ❌ Error creating tables: {e}")
+# ------------------------------------------------------
+# 💰 Budget storage (still JSON-based, not critical)
+# ------------------------------------------------------
+_budget_store = JsonStorage()  # we ONLY use its budget methods
+
+
+def load_budget() -> float:
+    return _budget_store.load_budget()
+
+
+def save_budget(value: float) -> None:
+    _budget_store.save_budget(value)
 
 
 # ------------------------------------------------------
-# 🔁 Helper: load all expenses from DB and adapt to domain model
+# Small helper: convert DB rows → domain Expense objects
+# (for reuse in search/report logic)
 # ------------------------------------------------------
-async def load_all_expenses_as_domain(session: AsyncSession) -> List[Expense]:
-    """
-    Read all ExpenseDB rows from PostgreSQL and convert them into
-    the in-memory Expense domain model so your existing reporting
-    utilities (quick_indicator, monthly_summary, etc.) keep working
-    unchanged.
-    """
+def _to_domain(exp: ExpenseDB) -> Expense:
+    return Expense(
+        id=str(exp.id),
+        name=exp.name,
+        price=Decimal(str(exp.price)),
+        expense_date=exp.expense_date,
+        category=exp.category,
+        note=exp.note,
+    )
+
+
+async def _load_all_domain_expenses(session: AsyncSession) -> List[Expense]:
     db_expenses = await crud.get_expenses(session)
-    domain_expenses: List[Expense] = []
-
-    for e in db_expenses:
-        domain_expenses.append(
-            Expense(
-                id=str(e.id),
-                name=e.name,
-                price=e.price,
-                expense_date=e.expense_date,
-                category=e.category,
-                note=e.note,
-            )
-        )
-
-    return domain_expenses
+    return [_to_domain(e) for e in db_expenses]
 
 
 # ------------------------------------------------------
-# ✅ Health Check
+# ✅ Health check
 # ------------------------------------------------------
 @app.get("/")
 def read_root():
     return {"message": "Expense Tracker API is running 🚀"}
 
 
-# TEMP debug route
 @app.get("/test-env")
 def test_env():
-    return {"redirect": os.getenv("GOOGLE_REDIRECT_URI")}
-
+    return {
+        "redirect": os.getenv("GOOGLE_REDIRECT_URI")
+    }
 
 # ------------------------------------------------------
-# ✅ List All Expenses
+# 📦 Expenses CRUD (DB-backed)
 # ------------------------------------------------------
 @app.get("/expenses", response_model=List[ExpenseRead])
 async def list_expenses(session: AsyncSession = Depends(get_session)):
-    expenses = await crud.get_expenses(session)
-    # Convert DB model → Pydantic schema
-    return [
-        ExpenseRead(
-            id=str(e.id),
-            name=e.name,
-            category=e.category,
-            price=e.price,
-            expense_date=e.expense_date,
-            note=e.note,
-        )
-        for e in expenses
-    ]
+    db_expenses = await crud.get_expenses(session)
+    return db_expenses
 
 
+@app.get("/expenses/id/{expense_id}", response_model=ExpenseRead)
+async def get_expense(
+    expense_id: str, session: AsyncSession = Depends(get_session)
+):
+    db_expense = await crud.get_expense_by_id(session, expense_id)
+    if not db_expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    return db_expense
+
+
+@app.post("/expenses", response_model=ExpenseRead)
+async def add_expense(
+    expense: ExpenseCreate, session: AsyncSession = Depends(get_session)
+):
+    try:
+        db_expense = await crud.create_expense(session, expense)
+        return db_expense
+    except Exception as e:
+        logger.exception("Failed to add expense")
+        raise HTTPException(status_code=400, detail=f"Failed to add expense: {e}")
+
+
+@app.put("/expenses/{expense_id}", response_model=ExpenseRead)
+async def update_expense(
+    expense_id: str,
+    payload: ExpenseUpdate,
+    session: AsyncSession = Depends(get_session),
+):
+    db_expense = await crud.update_expense(session, expense_id, payload)
+    if not db_expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    return db_expense
+
+
+@app.delete("/expenses/{expense_id}")
+async def delete_expense(
+    expense_id: str,
+    session: AsyncSession = Depends(get_session),
+):
+    success = await crud.delete_expense(session, expense_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    return {"message": f"Expense {expense_id} deleted successfully."}
+
 # ------------------------------------------------------
-# ✅ Search & Filter (DB-backed now)
+# 🔍 Search (uses DB + your existing fuzzy filter)
 # ------------------------------------------------------
-@app.get("/expenses/search", response_model=List[ExpenseRead])
+@app.get("/expenses/search", response_model=List[dict])
 async def search_expenses(
     name: Optional[str] = Query("", description="Search by partial name"),
     category: Optional[str] = Query("", description="Filter by category"),
@@ -204,91 +233,28 @@ async def search_expenses(
     fuzzy_threshold: int = Query(65, description="Fuzzy match threshold (0–100)"),
     session: AsyncSession = Depends(get_session),
 ):
-    print(
+    logger.debug(
         f"[DEBUG] 🔍 Search route hit: name='{name}', "
         f"category='{category}', date='{date}'"
     )
 
-    # Load all expenses from DB as domain objects
-    all_expenses = await load_all_expenses_as_domain(session)
-
+    domain_expenses = await _load_all_domain_expenses(session)
     categories = [category] if category else []
-    results = search_filter(all_expenses, name, categories, date, fuzzy_threshold)
 
-    # Convert domain → Pydantic
-    return [
-        ExpenseRead(
-            id=e.id,
-            name=e.name,
-            category=e.category,
-            price=e.price,
-            expense_date=e.expense_date,
-            note=e.note,
-        )
-        for e in results
-    ]
-
+    results = search_filter(domain_expenses, name, categories, date, fuzzy_threshold)
+    logger.debug(f"[DEBUG] ✅ Found {len(results)} matching results")
+    return [e.to_dict() for e in results]
 
 # ------------------------------------------------------
-# ✅ Get Expense by ID
-# ------------------------------------------------------
-@app.get("/expenses/id/{expense_id}", response_model=ExpenseRead)
-async def get_expense(
-    expense_id: str,
-    session: AsyncSession = Depends(get_session),
-):
-    db_expense = await crud.get_expense_by_id(session, expense_id)
-    if not db_expense:
-        raise HTTPException(status_code=404, detail="Expense not found")
-
-    return ExpenseRead(
-        id=str(db_expense.id),
-        name=db_expense.name,
-        category=db_expense.category,
-        price=db_expense.price,
-        expense_date=db_expense.expense_date,
-        note=db_expense.note,
-    )
-
-
-# ------------------------------------------------------
-# ✅ Add New Expense
-# ------------------------------------------------------
-@app.post("/expenses", response_model=ExpenseRead)
-async def add_expense(
-    expense: ExpenseCreate,
-    session: AsyncSession = Depends(get_session),
-):
-    try:
-        db_expense = await crud.create_expense(session, expense)
-        return ExpenseRead(
-            id=str(db_expense.id),
-            name=db_expense.name,
-            category=db_expense.category,
-            price=db_expense.price,
-            expense_date=db_expense.expense_date,
-            note=db_expense.note,
-        )
-    except Exception as e:
-        logger.error(f"[ERROR] Failed to add expense: {e}")
-        raise HTTPException(status_code=400, detail=f"Failed to add expense: {e}")
-
-
-# ------------------------------------------------------
-# ✅ Export Expenses to CSV
+# 📤 Export to CSV (uses DB → domain → CSV)
 # ------------------------------------------------------
 @app.post("/expenses/export")
 async def export_expenses_to_csv(
     append: bool = True,
     session: AsyncSession = Depends(get_session),
 ):
-    """
-    Export all expenses to CSV.
-    Returns a downloadable CSV file.
-    """
     try:
-        # Load from DB, adapt to domain for export util
-        domain_expenses = await load_all_expenses_as_domain(session)
+        domain_expenses = await _load_all_domain_expenses(session)
         file_path = export_to_csv(domain_expenses, append=append)
         if not file_path:
             raise HTTPException(status_code=500, detail="Export failed.")
@@ -301,17 +267,15 @@ async def export_expenses_to_csv(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Export failed: {e}")
 
-
 # ------------------------------------------------------
-# ✅ Charts Endpoints (still file-based output)
+# 📊 Charts (DB → domain → your existing chart funcs)
 # ------------------------------------------------------
 @app.post("/charts/monthly")
 async def generate_monthly_chart(
     year: int,
     session: AsyncSession = Depends(get_session),
 ):
-    """Generate monthly spending vs budget chart."""
-    domain_expenses = await load_all_expenses_as_domain(session)
+    domain_expenses = await _load_all_domain_expenses(session)
     file_path = monthly_spending_chart(domain_expenses, year)
     if not file_path:
         raise HTTPException(status_code=400, detail="Chart generation failed.")
@@ -324,16 +288,14 @@ async def generate_category_pie(
     month: int,
     session: AsyncSession = Depends(get_session),
 ):
-    """Generate monthly category pie chart."""
-    domain_expenses = await load_all_expenses_as_domain(session)
+    domain_expenses = await _load_all_domain_expenses(session)
     file_path = monthly_spending_category_pie(domain_expenses, year, month)
     if not file_path:
         raise HTTPException(status_code=400, detail="Pie chart generation failed.")
     return {"message": "✅ Pie chart generated", "file_path": str(file_path)}
 
-
 # ------------------------------------------------------
-# ✅ Detailed Summary Reports
+# 📈 Reports — SUMMARY (DB → domain → existing logic)
 # ------------------------------------------------------
 @app.get("/reports/summary")
 async def get_reports_summary(
@@ -341,23 +303,18 @@ async def get_reports_summary(
     month: Optional[int] = Query(None),
     session: AsyncSession = Depends(get_session),
 ):
-    """
-    Return detailed expense summary for the given month/year.
-    If no month/year is provided, return full summaries.
-    """
     try:
-        all_expenses = await load_all_expenses_as_domain(session)
+        domain_expenses = await _load_all_domain_expenses(session)
 
-        # Filtered subset for specific year/month
-        expenses = all_expenses
+        # filter by year/month if provided (like before)
         if year and month:
-            expenses = [
+            domain_expenses = [
                 e
-                for e in all_expenses
+                for e in domain_expenses
                 if e.expense_date.year == year and e.expense_date.month == month
             ]
 
-        if not expenses:
+        if not domain_expenses:
             return jsonable_encoder(
                 {
                     "total": 0,
@@ -367,23 +324,22 @@ async def get_reports_summary(
                 }
             )
 
-        # Total & average per day
-        total = sum((e.price for e in expenses), Decimal("0"))
+        total = sum((e.price for e in domain_expenses), Decimal("0"))
 
-        min_d = min(e.expense_date for e in expenses)
-        max_d = max(e.expense_date for e in expenses)
+        min_d = min(e.expense_date for e in domain_expenses)
+        max_d = max(e.expense_date for e in domain_expenses)
         days = (max_d - min_d).days + 1
         avg_per_day = total / days if days > 0 else Decimal("0")
 
         per_category = defaultdict(Decimal)
-        for e in expenses:
+        for e in domain_expenses:
             per_category[e.category] += e.price
 
-        # If no period requested → full dataset summaries
+        # full summaries (no year/month filter)
         if not (year and month):
-            monthly = monthly_summary(all_expenses)
-            weekly = weekly_summary(all_expenses)
-            annual = annual_summary(all_expenses)
+            monthly = monthly_summary(domain_expenses)
+            weekly = weekly_summary(domain_expenses)
+            annual = annual_summary(domain_expenses)
 
             def safe_monthly_dict(data):
                 return {f"{y}-{m:02d}": float(t) for (y, m), t in data.items()}
@@ -405,16 +361,14 @@ async def get_reports_summary(
                 {
                     "total": float(total),
                     "avg_per_day": float(avg_per_day),
-                    "per_category": {
-                        k: float(v) for k, v in per_category.items()
-                    },
+                    "per_category": {k: float(v) for k, v in per_category.items()},
                     "monthly_summary": safe_monthly_dict(monthly),
                     "weekly_summary": safe_weekly_dict(weekly),
                     "annual_summary": safe_annual_dict(annual),
                 }
             )
 
-        # Month-specific summary
+        # month-specific summary
         month_name = datetime(year, month, 1).strftime("%B")
         return jsonable_encoder(
             {
@@ -422,18 +376,15 @@ async def get_reports_summary(
                 "total": float(total),
                 "avg_per_day": float(avg_per_day),
                 "days": days,
-                "per_category": {
-                    k: float(v) for k, v in per_category.items()
-                },
+                "per_category": {k: float(v) for k, v in per_category.items()},
             }
         )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate report: {e}")
 
-
 # ------------------------------------------------------
-# ✅ Quick Glance
+# ⚡ Reports — QUICK GLANCE (DB expenses + JSON budget)
 # ------------------------------------------------------
 @app.get("/reports/quick")
 async def get_quick_glance(
@@ -441,30 +392,21 @@ async def get_quick_glance(
     month: int,
     session: AsyncSession = Depends(get_session),
 ):
-    """
-    Quick monthly overview combining key metrics:
-      - Budget indicator (spent vs budget)
-      - Top spending category
-      - Month-over-month spending change
-      - Average daily burn rate
-    """
     try:
-        monthly_budget = budget_store.load_budget()
+        monthly_budget = load_budget()
 
         if monthly_budget is None:
-            raise ValueError(
-                "No budget data found. Please set a monthly budget first."
-            )
+            raise ValueError("No budget data found. Please set a monthly budget first.")
 
         if not isinstance(monthly_budget, Decimal):
             monthly_budget = Decimal(str(monthly_budget))
 
-        expenses = await load_all_expenses_as_domain(session)
+        domain_expenses = await _load_all_domain_expenses(session)
 
-        indicator = quick_indicator(expenses, year, month, monthly_budget)
-        top_category = quick_top_category(expenses, year, month)
-        month_change = quick_month_over_month_change(expenses, year, month)
-        burn_rate = quick_daily_burn_rate(expenses, year, month)
+        indicator = quick_indicator(domain_expenses, year, month, monthly_budget)
+        top_category = quick_top_category(domain_expenses, year, month)
+        month_change = quick_month_over_month_change(domain_expenses, year, month)
+        burn_rate = quick_daily_burn_rate(domain_expenses, year, month)
 
         response = {
             "year": year,
@@ -480,41 +422,3 @@ async def get_quick_glance(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Quick glance failed: {e}")
-
-
-# ------------------------------------------------------
-# ✅ Update Existing Expense
-# ------------------------------------------------------
-@app.put("/expenses/{expense_id}", response_model=ExpenseRead)
-async def update_expense(
-    expense_id: str,
-    payload: ExpenseUpdate,
-    session: AsyncSession = Depends(get_session),
-):
-    db_expense = await crud.update_expense(session, expense_id, payload)
-    if not db_expense:
-        raise HTTPException(status_code=404, detail="Expense not found")
-
-    return ExpenseRead(
-        id=str(db_expense.id),
-        name=db_expense.name,
-        category=db_expense.category,
-        price=db_expense.price,
-        expense_date=db_expense.expense_date,
-        note=db_expense.note,
-    )
-
-
-# ------------------------------------------------------
-# ✅ Delete Expense
-# ------------------------------------------------------
-@app.delete("/expenses/{expense_id}")
-async def delete_expense(
-    expense_id: str,
-    session: AsyncSession = Depends(get_session),
-):
-    success = await crud.delete_expense(session, expense_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Expense not found")
-
-    return {"message": f"Expense {expense_id} deleted successfully."}
