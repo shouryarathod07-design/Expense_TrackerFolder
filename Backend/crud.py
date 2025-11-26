@@ -1,4 +1,5 @@
 # Backend/crud.py
+import uuid
 from typing import List, Optional
 
 from sqlalchemy import select
@@ -6,6 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.models_sql import ExpenseDB
 from Backend.schemas import ExpenseCreate, ExpenseUpdate
+
+
+# -----------------------------
+# Helpers
+# -----------------------------
+def _parse_uuid(expense_id: str) -> uuid.UUID:
+    """Convert string → UUID safely."""
+    try:
+        return uuid.UUID(expense_id)
+    except Exception:
+        raise ValueError(f"Invalid UUID format: {expense_id}")
 
 
 # -----------------------------
@@ -21,8 +33,13 @@ async def get_expenses(session: AsyncSession) -> List[ExpenseDB]:
 async def get_expense_by_id(
     session: AsyncSession, expense_id: str
 ) -> Optional[ExpenseDB]:
+    try:
+        uuid_id = _parse_uuid(expense_id)
+    except ValueError:
+        return None
+
     result = await session.execute(
-        select(ExpenseDB).where(ExpenseDB.id == expense_id)
+        select(ExpenseDB).where(ExpenseDB.id == uuid_id)
     )
     return result.scalar_one_or_none()
 
@@ -52,6 +69,7 @@ async def create_expense(
 async def update_expense(
     session: AsyncSession, expense_id: str, updates: ExpenseUpdate
 ) -> Optional[ExpenseDB]:
+
     db_expense = await get_expense_by_id(session, expense_id)
     if not db_expense:
         return None
@@ -80,6 +98,7 @@ async def update_expense(
 async def delete_expense(
     session: AsyncSession, expense_id: str
 ) -> bool:
+
     db_expense = await get_expense_by_id(session, expense_id)
     if not db_expense:
         return False

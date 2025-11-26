@@ -105,7 +105,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",  # local dev
-        VERCEL_FRONTEND,          # production frontend
+        VERCEL_FRONTEND,    
+        "https://expense-tracker-backend-sdjo.onrender.com"      # production frontend
     ],
     allow_credentials=True,       # REQUIRED for OAuth cookies
     allow_methods=["*"],
