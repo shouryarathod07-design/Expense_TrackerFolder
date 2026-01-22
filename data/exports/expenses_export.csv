@@ -1,3 +1,41 @@
 id,name,category,price,expense_date,note
 5c74a9eb-9882-4e45-af21-6220693e1cfb,Coffee,Food,5.6,2025-11-26,testing
 363126a5-980e-4c93-bd57-99dea769ccb3,Piedra Negra,Food,80.0,2025-11-20,Get the 40 from Raju
+6c02091a-e708-4b7d-9569-6c9ed8498f92,Test Number 2,Others,2.0,2026-01-19,
+aa1e82cd-b0fe-42d3-86ca-9c36d9a663b2,Testing Local Crud Functionality On Expensr,Food,1.0,2026-01-19,Testing!
+6a580b7e-bb6b-4c9b-9876-0c12f5ea9d68,"Macbook Air 13"" M4 24Gb Unified Memory 512Gb Ssd",Others,2099.0,2026-01-14,Big Boy
+5d420a26-3bad-47d1-8df8-d97cd78a037f,Mustafa Centre,Others,79.0,2026-01-12,
+0a9f4bc0-0abb-460d-bb58-839dca4bec84,Tada Reciept,Travel,11.4,2026-01-12,
+508ba1c7-bf10-4cb9-bf82-60f8a8260a40,Mustafa Center,Others,97.8,2026-01-12,shave ma bals
+716f041f-17fb-4ce0-8cae-b26905710768,Swensens,Food,28.9,2026-01-10,Paid the share to Rishit
+c999428c-afe8-4969-a13b-4d47a0f13482,Bowling And Pizza,Ent,20.0,2026-01-07,Paid Raju
+0321203e-1da1-4e3f-b9bc-b833dc02d459,Taxi,Travel,29.0,2026-01-06,To Paarths condo for TT
+de1e1c16-1d5a-4209-8455-161201987348,Black Boots,Clothing,79.9,2026-01-03,"Suitable for Formal wear and more, fairly versatile"
+5c74a9eb-9882-4e45-af21-6220693e1cfb,Coffee,Food,5.6,2025-11-26,testing
+ac4b3559-1536-42d9-9c9c-5828ebf6583b,Quarter Zip Sweater Uniqlo,Clothing,39.9,2025-11-22,prep
+c9ab3565-7d56-440c-b847-14c709a33ea1,Wingstop,Food,38.8,2025-11-21,YUM
+7cb3f4c4-2867-4879-af13-2327d2c2b893,Piedra Negra,Others,79.32,2025-11-14,FOOD 
+04883d30-46ff-48a4-b2f9-108ed1341304,Prime,Food,10.35,2025-11-13,Prime lesgooooo
+3c5efc10-8eae-4068-8b69-c628d12bc711,Taxi :(,Travel,48.0,2025-11-08,never travelling that much by taxi again
+776af61a-6f3f-4e12-8950-242c9034984b,Hooks,Misc,2.5,2025-10-15,
+01d040f1-5eff-4dbe-82a6-10e602cfc4ae,Tres Keratube Smooth,Others,8.65,2025-10-15,
+4a931eae-69ae-4ed1-b328-5ac639010394,Calvin Klein Hoodie,Clothing,60.0,2025-10-14,
+5d052baa-b67a-4086-92ca-e21151ceea3a,Gojek Taxi,Travel,10.4,2025-10-14,
+9c7d4e8a-89bf-48b2-b5b6-1459e28c3acd,Bread,Food,3.1,2025-10-12,
+cd9cb8d5-24bb-49a3-a1bf-3584925bc6e6,Prime Supermarket,Food,34.2,2025-10-12,OCR date now autocompleted lesgooo!
+9246205a-bec9-474c-803f-a9068029a52d,Salmon Fillet,Food,6.95,2025-10-12,
+2e159719-c301-445c-a73a-ee6f24235f8d,Greenfiled Fresh Milk Fu,Food,6.05,2025-10-12,
+9be09571-e604-4504-a76c-f720f33c43dc,Seng Choon Farm Fresh Egg,Food,4.0,2025-10-12,
+47fd348c-af0b-4e0a-8145-527054478aa5,Onion,Food,1.47,2025-10-06,
+7c052bf6-2c42-4642-a169-399a9af892a8,Meiji Fresh Milk 2L,Food,6.7,2025-10-06,
+1816c8d0-224a-40fb-b459-b100e061189e,Dashi Go Go,Ent,43.67,2025-10-04,
+624e8a07-02e2-439e-8b4f-11a7e5b35e70,Drinks,Ent,20.0,2025-10-04,
+75397108-8e09-47c6-84d8-cea1f0871847,Suvai Idly Dosa Wet Flour 1 Kg,Food,8.0,2025-10-02,
+1ff67712-d894-44dd-86ef-03b80d8937a9,Meiji Fresh Milk 2L,Food,6.7,2025-10-02,
+2d696945-4a7f-4784-868c-5c36d46aa23d,Tada Taxi,Travel,15.48,2025-09-30,Taxi
+2113aa9c-0996-49bd-bad2-3b1b3a956f51,Prime,Food,23.9,2025-09-24,
+8e07c31b-5074-4a3a-9bd0-1b667959681d,Coffee,Food,5.6,2025-09-23,
+00744ac9-badd-4ad7-9d45-96fb33f1eb48,Dandiya,Ent,38.0,2025-09-20,
+34fa1476-dd8c-46a5-99e2-f56a41cf4a48,Bose Headphones,Ent,569.87,2025-09-11,
+baf09975-af83-490b-b317-4b8421025f03,Sri Selvi,Food,7.8,2025-07-23,First tiem date auto completed post OCR!
+0379a6e0-e526-4ca4-8b43-32c9f925ac78,Go Pro Gift,Others,320.0,2024-11-12,
